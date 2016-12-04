@@ -4,7 +4,9 @@ const { Observable } = Rx;
 let $textbox;
 let $results;
 let $openBtn;
+let $closeBtn;
 let $searchForm;
+let $header;
 
 Observable.
   fromEvent(window, 'load').
@@ -19,6 +21,7 @@ function init() {
   $openBtn = $('#open');
   $closeBtn = $('#close');
   $searchForm = $('#form');
+  $header = $('#header');
 
   // init functions that return observables
   
@@ -40,17 +43,32 @@ function init() {
       return $searchForm.hide(250);
     });
 
+  const spinnerShowAnimated =
+    singleRunObservableFactory(function spinnerShow() {
+      return $('<div>').
+        addClass('spinner').
+        appendTo($header).
+        fadeIn(200);
+    });
+  const spinnerHideAnimated =
+    singleRunObservableFactory(function spinnerHide() {
+      return $header.
+        find('.spinner').
+        fadeOut(200);
+    });
+
   const getWikipediaSearchResults = 
     singleRunObservableFactory(function getWikiResults(term) {
       const encodedTerm = encodeURIComponent(term);
       const url = `http://en.wikipedia.org/w/api.php?action=opensearch&format=json&search=${encodedTerm}&callback=?`;
+      console.debug('requesting ' + term);
       return $.getJSON(url);
     });
 
   // init streams
   const openClicks = Observable.fromEvent($openBtn, 'click');
   const closeClicks = Observable.fromEvent($closeBtn, 'click');
-  const textboxKeys = Observable.fromEvent($textbox, 'keydown');
+  const textboxKeys = Observable.fromEvent($textbox, 'keyup');
 
   const searchBoxClosing = closeClicks.
     concatMap(() => 
@@ -69,21 +87,28 @@ function init() {
     );
 
   const searchBoxOpened = textboxKeys.
-    throttle(200).
-    filter((e) => [...e.key.match(/(Backspace)|([a-zA-Z0-9])/g)].length === 1).
+    debounce(200).
     map(() => $textbox.val().trim()).
+    filter(({ length }) => length > 0).
     distinctUntilChanged().
     map((text) => 
-      getWikipediaSearchResults(text).
-      retry(3)).
-    switchLatest().
-    takeUntil(searchBoxClosing);
-
-  const resultsStream = searchBoxOpenning.
-    map(() => searchBoxOpened).
+      spinnerShowAnimated().
+      map(() =>
+        getWikipediaSearchResults(text).
+        retry(3)).
+      switchLatest().
+      map((results) => 
+        spinnerHideAnimated().
+        map(() => $header.find('.spinner').remove()).
+        map(() => results)).
+      switchLatest()).
     switchLatest();
 
-  resultsStream.forEach(displayResults);
+  const resultsStream = searchBoxOpenning.
+    concatMap(() => searchBoxOpened).
+    takeUntil(searchBoxClosing);
+
+  resultsStream.forEach(displayResults, null, displayError);
 }
 
 function singleRunObservableFactory(functionWithDone) {
@@ -138,6 +163,14 @@ function displayResults(results) {
   } else {
     showNoResults();
   }
+}
+
+function displayError(error) {
+  clearResultsList();
+  $('<div>').
+    addClass('alert alert-danger').
+    html(error).
+    appendTo($results);
 }
 
 function zip(...args) {

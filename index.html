@@ -4,32 +4,27 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <title>RxAutocomplete</title>
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/css/bootstrap.min.css" integrity="sha384-AysaV+vQoT3kOAXZkl02PThvDr8HYKPZhNT5h/CXfBThSRXQ6jW5DO2ekP5ViFdi" crossorigin="anonymous">
   <link rel="stylesheet" href="./autocomplete.css">
 </head>
 <body>
-  <div class="container-fluid">
-    <div class="col-xs-12 col-lg-8 col-offset-lg-2">
-      <div class="card">
-        <div id="header" class="card-header text-xs-center">
-          Wikipedia Search
-        </div>
-        <div class="card-block">
-          <button id="open" class="btn btn-primary form-control">Search</button>
-          <div id="form" style="display: none;">
-            <div class="input-group hidden">
-              <input id="textbox"
-                     type="search"
-                     autocomplete="off"
-                     class="form-control"
-                     placeholder="Search Wikipedia..."
-                     autofocus/>
-              <span class="input-group-btn">
-              <button type="button" id="close" class="btn btn-warning">Close</button>
-              </span>
-            </div>
-            <ul id="results" class="list-group"></ul>
+  <div class="container">
+    <div class="card">
+      <div id="header" class="card-header">
+        Wikipedia Search
+      </div>
+      <div class="card-body">
+        <button id="open">Search</button>
+        <div id="form" style="display: none;">
+          <div class="input-group">
+            <input id="textbox"
+                   type="search"
+                   autocomplete="off"
+                   placeholder="Search Wikipedia..."/>
+            <span class="input-group-btn">
+            <button id="close">Close</button>
+            </span>
           </div>
+          <ul id="results" class="results"></ul>
         </div>
       </div>
     </div>
@@ -37,8 +32,6 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/rxjs/4.0.6/rx.all.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js" integrity="sha384-3ceskX3iaEnIogmQchP8opvBy3Mi7Ce34nWjpBIwVTHfGYWQS9jwHDVRnpKKHJg7" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.3.7/js/tether.min.js" integrity="sha384-XTs3FgkjiBgo8qjEjBk0tGmf3wPrWtA6coPfQDfFEY8AnYJwjalXCiosYRBIBZX8" crossorigin="anonymous"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/js/bootstrap.min.js" integrity="sha384-BLiI7JTZm+JWlgKa0M0kGRpJbF2J8q+qreVrKBC47e3K6BW78kGLrCkeRX6I9RoK" crossorigin="anonymous"></script>
   <script src="./autocomplete.js"></script>
 </body>
 </html>

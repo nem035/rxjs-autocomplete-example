@@ -90,7 +90,8 @@ function init() {
   const searchBoxOpenning = openClicks.
     concatMap(() => openBtnHideAnimated().
       concatMap(() => searchFormShowAnimated().
-        do(() => $textbox.focus()))
+        do(() => $textbox.focus()).
+        do(() => showNoResults()))
     );
 
   const searchBoxOpened = textboxKeys.
@@ -154,9 +155,9 @@ function clearResultsList() {
 function showNoResults() {
   $('<div>').
     attr('id', 'no-results').
-    addClass('text-info').
+    addClass('no-results').
     text('No results.').
-    appendTo($searchForm);
+    appendTo($results);
 }
 
 function displayResults(result) {
@@ -168,13 +169,13 @@ function displayResults(result) {
     const [, terms, descriptions, links ] = result;
     zip(terms, descriptions, links, (term, desc, link) => {
       $results.append(
-        `<li class="list-group-item">
-          <h5 class="list-group-item-heading">
+        `<li class="list-item">
+          <div class="list-item-head">
             <a href="${link}" target="_blank">${term}</a>
-          </h5>
-          <p class="list-group-item-text">
+          </div>
+          <div class="list-item-body">
             ${desc}
-          </p>
+          </div>
         </li>`);
     });
   } else {
@@ -185,7 +186,7 @@ function displayResults(result) {
 function displayError(error) {
   clearResultsList();
   $('<div>').
-    addClass('alert alert-danger').
+    addClass('error-message').
     html(error).
     appendTo($results);
 }

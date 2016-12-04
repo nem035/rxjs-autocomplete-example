@@ -1,57 +1,163 @@
-body {
-  height: 100vh;
-  padding: 50px;
+* {
+  box-sizing: border-box;
 }
 
-body > div {
+html {
+  font-size: 16px;
+  /* dimensions */
+  --body-margin: 50px;
+  --card-header-height: 2rem;
+  --card-header-padding-vertical: 5px;
+  --card-header-padding-horizontal: 10px;
+  --card-body-padding: 5px;
+  --border-radius: 3px;
+  --spinner-dimension: calc(
+    var(--card-header-height) -
+    2 * var(--card-header-padding-vertical)
+  );
+  --form-item-padding-vertical: .5rem;
+  --form-item-padding-horizontal: 1rem;
+
+  /* colors */
+  --color: #1E152A;
+  --body-bg-color: #A5C882;
+  --card-bg-color: #5AB1BB;
+  --btn-color: #F7DD72;
+  --btn-bg-color: var(--color);
+  --header-bg-color: var(--btn-color);
+  --border: 1px solid #aaa;
+
+  /* shadows */
+  --card-box-shadow: 0 1px 2px var(--color);
+}
+
+body {
+  margin: var(--body-margin);
   display: flex;
   justify-content: center;
-  height: 100%;
+  background-color: var(--body-bg-color);
+  color: var(--color);
 }
 
 .card {
-  box-shadow: 0 1px 2px #ddd;
+  box-shadow: var(--card-box-shadow);
+  max-height: calc(100vh - var(--body-margin));
+  width: calc(100vw / 2);
+  background-color: var(--card-bg-color);
+}
+
+@media (max-width: 768px) {
+  .card {
+    width: calc(100vw - var(--body-margin));
+  }
 }
 
 .card-header {
   position: relative;
+  background-color: var(--header-bg-color);
+  text-align: center; 
+  padding: var(--card-header-padding-vertical) var(--card-header-padding-horizontal);
+  font-size: var(--spinner-dimension);
+  height: var(--card-header-height);
 }
 
-#results {
-  border-bottom-left-radius: .25rem;
-  border-bottom-right-radius: .25rem;
-  border-bottom: 1px solid #ddd;
-  margin-right: 1px;
-  margin-top: -1px;
-  max-height: calc(100vh - 200px);
+.card-body {
+  padding: var(--card-body-padding);
+}
+
+button {
+  color: var(--btn-color);
+  background-color: var(--btn-bg-color);
+}
+
+input,
+button {
+  padding: var(--form-item-padding-vertical) var(--form-item-padding-horizontal);
+  border: 0;
+  border-radius: var(--border-radius);
+  outline: 0;
+  transition: box-shadow .15s ease-in;  
+}
+
+button {
+  cursor: pointer;
+  box-shadow: 0 1px 2px black;  
+}
+
+button:active {
+  box-shadow: none; 
+}
+
+input {
+  border: var(--border);  
+}
+
+input:focus {
+  box-shadow: 1px 1px 5px var(--color) inset; 
+}
+
+.input-group {
+  display: flex;  
+  justify-content: space-around;;
+}
+
+.input-group > input {
+  width: 88%;
+}
+
+.input-group > span {
+  width: 10%;
+}
+
+.results {
+  height: calc(100vh - (
+    3 * var(--body-margin) +
+    var(--card-header-height) +
+    2 * var(--card-body-padding) +
+    2 * var(--form-item-padding-vertical)
+  ));
   overflow-y: scroll;
+  list-style: none;
+  padding: 0;
+  background: white;
+  margin: 5px 0 0 3px;  
+  border: var(--border);  
+  border-radius: var(--border-radius);
 }
 
-#no-results {
-  margin-top: 10px;
+.list-item {
+  padding: 3px;
+  border-top: var(--border);  
 }
 
-.list-group-item:first-child {
-  border-top-right-radius: 0;
-  border-top-left-radius: 0;
-  border-top: 0;
+.list-item:first-child {
+  border-top-left-radius: var(--border-radius);
+  border-top-right-radius: var(--border-radius);
 }
 
-.list-group-item:last-child {
-  border-bottom: 0;
+.list-item:last-child {
+  border-bottom-left-radius: var(--border-radius);
+  border-bottom-right-radius: var(--border-radius);
+}
+
+.no-results {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  text-align: center;
 }
 
 .spinner {
-  height: 25px;
-  width: 25px;
+  height: var(--spinner-dimension);
+  width: var(--spinner-dimension);
   animation: rotate 0.8s infinite linear;
-  border: 4px solid #fff;
-  border-color: #0275D8;
+  border: 4px solid var(--color);
   border-right-color: transparent;
   border-radius: 50%;
   position: absolute;
-  right: 1.25rem;
-  top: .75rem;
+  right: var(--card-header-padding-horizontal);
+  top: var(--card-header-padding-vertical);
 }
 
 @keyframes rotate {
@@ -59,6 +165,7 @@ body > div {
   100%  { transform: rotate(360deg); }
 }
 
-.alert-danger {
-  margin-top: 10px;
+.error-message {
+  margin: 10px;
+  color: red;
 }

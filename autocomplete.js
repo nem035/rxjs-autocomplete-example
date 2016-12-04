@@ -72,6 +72,7 @@ function init() {
     });
 
   // init streams
+  
   const openClicks = Observable.fromEvent($openBtn, 'click');
   const closeClicks = Observable.fromEvent($closeBtn, 'click');
   const textboxKeys = Observable.fromEvent($textbox, 'keyup');
@@ -81,15 +82,15 @@ function init() {
       searchFormHideAnimated().
         concatMap(() => 
           openBtnShowAnimated().
-            map(() => clearResultsList()).
-            map(() => $textbox.val(''))
+            do(() => clearResultsList()).
+            do(() => $textbox.val(''))
         )
     );
 
   const searchBoxOpenning = openClicks.
     concatMap(() => openBtnHideAnimated().
       concatMap(() => searchFormShowAnimated().
-        map(() => $textbox.focus()))
+        do(() => $textbox.focus()))
     );
 
   const searchBoxOpened = textboxKeys.
@@ -105,7 +106,7 @@ function init() {
       switchLatest().
       map((result) => 
         spinnerHideAnimated().
-        map(() => $header.find('.spinner').remove()).
+        do(() => $header.find('.spinner').remove()).
         map(() => result)).
       switchLatest()).
     switchLatest();

@@ -50,7 +50,7 @@ function init() {
   // init streams
   const openClicks = Observable.fromEvent($openBtn, 'click');
   const closeClicks = Observable.fromEvent($closeBtn, 'click');
-  const textboxKeyPresses = Observable.fromEvent($textbox, 'keypress');
+  const textboxKeys = Observable.fromEvent($textbox, 'keydown');
 
   const searchBoxClosing = closeClicks.
     concatMap(() => 
@@ -68,8 +68,9 @@ function init() {
         map(() => $textbox.focus()))
     );
 
-  const searchBoxOpened = textboxKeyPresses.
+  const searchBoxOpened = textboxKeys.
     throttle(200).
+    filter((e) => [...e.key.match(/(Backspace)|([a-zA-Z0-9])/g)].length === 1).
     map(() => $textbox.val().trim()).
     distinctUntilChanged().
     map((text) => 

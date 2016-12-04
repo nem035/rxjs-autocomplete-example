@@ -54,8 +54,8 @@
           Wikipedia Search
         </div>
         <div class="card-block">
-          <button id="show" class="btn btn-primary form-control">Search</button>
-          <form id="form" style="display: none;">
+          <button id="open" class="btn btn-primary form-control">Search</button>
+          <div id="form" style="display: none;">
             <div class="input-group hidden">
               <input id="textbox"
                      type="search"
@@ -64,11 +64,11 @@
                      placeholder="Search Wikipedia..."
                      autofocus/>
               <span class="input-group-btn">
-              <button id="hide" class="btn btn-warning">Hide</button>
+              <button type="button" id="close" class="btn btn-warning">Close</button>
               </span>
             </div>
             <ul id="results" class="list-group"></ul>
-          </form>
+          </div>
         </div>
       </div>
     </div>

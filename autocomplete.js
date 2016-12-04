@@ -3,66 +3,124 @@ const { Observable } = Rx;
 // DOM
 let $textbox;
 let $results;
-let $showBtn;
+let $openBtn;
+let $searchForm;
 
-// streams
-let hideStream;
-let keypressStream;
-let textStream;
-let resultsStream;
-
-// init
 Observable.
   fromEvent(window, 'load').
   take(1).
-  forEach(() => {
-    const $textbox = $('#textbox');
-    const $results = $('#results');
-    const $showBtn = $('#show');
-    const $searchForm = $('#form');
+  forEach(init);
 
-    Observable.
-      fromEvent($showBtn, 'click').
-      forEach(() => {
-        $showBtn.hide();
-        $searchForm.show();
+function init() {
 
-        const resultsStream = Observable.
-          fromEvent($textbox, 'keypress').
-          // map(e => e.preventDefault()).
-          throttle(200).
-          map(() => $textbox.val().trim()).
-          distinctUntilChanged().
-          map((text) => getWikipediaSearchResults(text).
-            retry(3)).
-          switchLatest();
+  // init DOM
+  $textbox = $('#textbox');
+  $results = $('#results');
+  $openBtn = $('#open');
+  $closeBtn = $('#close');
+  $searchForm = $('#form');
 
-        resultsStream.forEach(results => displayResults($searchForm, $results, results));  
-      });
-  });
+  // init functions that return observables
+  
+  const openBtnHideAnimated = 
+    singleRunObservableFactory(function openBtnHide() {
+      return $openBtn.hide(250);
+    });
+  const searchFormShowAnimated = 
+    singleRunObservableFactory(function searchFormShow() {
+      return $searchForm.show(250);
+    });
 
-function getWikipediaSearchResults(term) {
-  return Observable.create(function forEach(observer) {
-      let isRunning = true;
+  const openBtnShowAnimated = 
+    singleRunObservableFactory(function openBtnHide() {
+      return $openBtn.show(250);
+    });
+  const searchFormHideAnimated = 
+    singleRunObservableFactory(function searchFormShow() {
+      return $searchForm.hide(250);
+    });
 
+  const getWikipediaSearchResults = 
+    singleRunObservableFactory(function getWikiResults(term) {
       const encodedTerm = encodeURIComponent(term);
       const url = `http://en.wikipedia.org/w/api.php?action=opensearch&format=json&search=${encodedTerm}&callback=?`;
-      $.getJSON(url, data => {
-        if (isRunning) {
-          observer.onNext(data);
-          observer.onCompleted();
-        }
-      });
+      return $.getJSON(url);
+    });
+
+  // init streams
+  const openClicks = Observable.fromEvent($openBtn, 'click');
+  const closeClicks = Observable.fromEvent($closeBtn, 'click');
+  const textboxKeyPresses = Observable.fromEvent($textbox, 'keypress');
+
+  const searchBoxClosing = closeClicks.
+    concatMap(() => 
+      searchFormHideAnimated().
+        concatMap(() => 
+          openBtnShowAnimated().
+            map(() => clearResultsList()).
+            map(() => $textbox.val(''))
+        )
+    );
+
+  const searchBoxOpenning = openClicks.
+    concatMap(() => openBtnHideAnimated().
+      concatMap(() => searchFormShowAnimated().
+        map(() => $textbox.focus()))
+    );
+
+  const searchBoxOpened = textboxKeyPresses.
+    throttle(200).
+    map(() => $textbox.val().trim()).
+    distinctUntilChanged().
+    map((text) => 
+      getWikipediaSearchResults(text).
+      retry(3)).
+    switchLatest().
+    takeUntil(searchBoxClosing);
+
+  const resultsStream = searchBoxOpenning.
+    map(() => searchBoxOpened).
+    switchLatest();
+
+  resultsStream.forEach(displayResults);
+}
+
+function singleRunObservableFactory(functionWithDone) {
+  return function createObservable(...args) {
+    return Observable.create(function forEach(observer) {
+      let isRunning = true;
+
+      functionWithDone(...args).
+        promise().
+        done((...doneArgs) => {
+          if (isRunning) {
+            observer.onNext(...doneArgs);
+            observer.onCompleted();
+          }
+        });
 
       return function dispose() {
         isRunning = false;
-      };
-  });
+      }
+    });
+  }
 }
 
-function displayResults($searchForm, $results, results) {
-  $results.empty();
+function clearResultsList() {
+  $results.empty();  
   $searchForm.find('#no-results').remove();
+}
+
+function showNoResults() {
+  $searchForm.append(
+    `<div id="no-results" class="text-info" role="alert">
+      No results.
+    </div>`
+  );
+}
+
+function displayResults(results) {
+  clearResultsList();
   if (Array.isArray(results)) {
     const [, terms, descriptions, links ] = results;
     zip(terms, descriptions, links, (term, desc, link) => {
@@ -77,11 +135,7 @@ function displayResults($searchForm, $results, results) {
         </li>`);
     });
   } else {
-    $searchForm.append(
-      `<div id="no-results" class="text-info" role="alert">
-        No results.
-      </div>`
-    );
+    showNoResults();
   }
 }
 

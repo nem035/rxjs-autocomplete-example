@@ -146,20 +146,24 @@ function singleRunObservableFactory(functionWithDone) {
 
 function clearResultsList() {
   $results.empty();  
-  $searchForm.find('#no-results').remove();
+  $searchForm.
+    find('#no-results').
+    remove();
 }
 
 function showNoResults() {
-  $searchForm.append(
-    `<div id="no-results" class="text-info" role="alert">
-      No results.
-    </div>`
-  );
+  $('<div>').
+    attr('id', 'no-results').
+    addClass('text-info').
+    text('No results.').
+    appendTo($searchForm);
 }
 
 function displayResults(result) {
   clearResultsList();
-  if (Array.isArray(result)) {
+  if (Array.isArray(result) && 
+      result.length === 4 && 
+      result[1].length > 0) {
 
     const [, terms, descriptions, links ] = result;
     zip(terms, descriptions, links, (term, desc, link) => {

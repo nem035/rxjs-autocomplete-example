@@ -60,9 +60,15 @@ function init() {
   const getWikipediaSearchResults = 
     singleRunObservableFactory(function getWikiResults(term) {
       const encodedTerm = encodeURIComponent(term);
-      const url = `http://en.wikipedia.org/w/api.php?action=opensearch&format=json&search=${encodedTerm}&callback=?`;
-      console.debug('requesting ' + term);
-      return $.getJSON(url);
+      return $.ajax({
+          url: '//en.wikipedia.org/w/api.php',
+          data: { 
+            action: 'opensearch',
+            search: encodedTerm,
+            format: 'json'
+          },
+          dataType: 'jsonp'
+      });
     });
 
   // init streams
@@ -97,10 +103,10 @@ function init() {
         getWikipediaSearchResults(text).
         retry(3)).
       switchLatest().
-      map((results) => 
+      map((result) => 
         spinnerHideAnimated().
         map(() => $header.find('.spinner').remove()).
-        map(() => results)).
+        map(() => result)).
       switchLatest()).
     switchLatest();
 
@@ -108,7 +114,7 @@ function init() {
     concatMap(() => searchBoxOpened).
     takeUntil(searchBoxClosing);
 
-  resultsStream.forEach(displayResults, null, displayError);
+  resultsStream.forEach(displayResults, displayError);
 }
 
 function singleRunObservableFactory(functionWithDone) {
@@ -122,6 +128,11 @@ function singleRunObservableFactory(functionWithDone) {
           if (isRunning) {
             observer.onNext(...doneArgs);
             observer.onCompleted();
+          }
+        }).
+        fail((...failArgs) => {
+          if (isRunning) {
+            observer.onError(...failArgs);
           }
         });
 
@@ -145,10 +156,11 @@ function showNoResults() {
   );
 }
 
-function displayResults(results) {
+function displayResults(result) {
   clearResultsList();
-  if (Array.isArray(results)) {
-    const [, terms, descriptions, links ] = results;
+  if (Array.isArray(result)) {
+
+    const [, terms, descriptions, links ] = result;
     zip(terms, descriptions, links, (term, desc, link) => {
       $results.append(
         `<li class="list-group-item">

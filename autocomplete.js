@@ -112,8 +112,8 @@ function init() {
     switchLatest();
 
   const resultsStream = searchBoxOpenning.
-    concatMap(() => searchBoxOpened).
-    takeUntil(searchBoxClosing);
+    concatMap(() => searchBoxOpened.
+      takeUntil(searchBoxClosing));
 
   resultsStream.forEach(displayResults, displayError);
 }

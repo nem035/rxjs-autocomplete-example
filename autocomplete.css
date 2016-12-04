@@ -88,6 +88,10 @@ button:active {
   box-shadow: none; 
 }
 
+#open {
+  width: calc(100% - var(--card-body-padding)/4);
+}
+
 input {
   border: var(--border);  
 }

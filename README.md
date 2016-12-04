@@ -1,6 +1,6 @@
 # RxJS Autocomplete Example
 
-Simple autocomplete demonstration using [RxJS][http://reactivex.io/]
+Simple demonstration of an autocomplete box for Wikipedia using [RxJS](http://reactivex.io/).
 
 [Live Page](https://nem035.github.io/rxjs-autocomplete-example)
 
